@@ -3,6 +3,7 @@ const functions = require("firebase-functions");
 const { googleSheetCredential } = require("./config");
 const { reply } = require("./helpers/line");
 const { salaryMessage } = require("./helpers/line/messages");
+const { salarySlips } = require("./helpers/line/slips");
 const { getGoogleSheetData } = require("./helpers/googleSheets");
 const { validateRegistered, registerUser } = require("./helpers/firebase");
 
@@ -17,11 +18,11 @@ exports.lineWebhook = functions.https.onRequest(async (req, res) => {
 
     if (isTextMessage) {
       const messageFromUser = message.text.trim();
-      const checkRegister = messageFromUser.split("รหัสพนักงาน:");
+      const checkRegister = messageFromUser.split("รหัส:");
       const needToRegister = checkRegister && checkRegister[1];
 
       if (needToRegister) {
-        const idCardForRegister = checkRegister[1];
+        const idForRegister = checkRegister[1];
         const hasBeenRegistered = await validateRegistered(lineUserID);
 
         if (hasBeenRegistered) {
@@ -33,14 +34,14 @@ exports.lineWebhook = functions.https.onRequest(async (req, res) => {
           googleSheetCredential.RANGE
         );
         const hasEmployee = employees.values.some(
-          ([employeeIDCard]) => employeeIDCard === idCardForRegister.toString()
+          ([employeeID]) => employeeID === idForRegister.toString()
         );
 
         if (!hasEmployee) {
           return replyMessage(req.body, res, "รหัสพนักงานไม่ตรงกับที่มีในระบบ");
         }
 
-        registerUser(lineUserID, idCardForRegister);
+        registerUser(lineUserID, idForRegister);
         return replyMessage(req.body, res, "ลงทะเบียนเรียบร้อย");
       } else {
         switch (messageFromUser) {
@@ -63,13 +64,28 @@ exports.lineWebhook = functions.https.onRequest(async (req, res) => {
               googleSheetCredential.RANGE
             );
             const me = employees.values.filter(
-              ([employeeIDCard]) => employeeIDCard === idCard.toString()
+              ([employeeID]) => employeeID === idCard.toString()
             )[0];
 
             return replyMessage(req.body, res, salaryMessage(me), "flex");
-          case "register":
-            if (!hasBeenRegistered) {
+          case "slips":
+            const hasBeenRegisteredSlips = await validateRegistered(lineUserID);
+
+            if (!hasBeenRegisteredSlips) {
+              return replyMessage(req.body, res, "กรุณาลงทะเบียนก่อนใช้งาน");
             }
+
+            const { idSlips } = hasBeenRegisteredSlips;
+            const employeesSlips = await getGoogleSheetData(
+              googleSheetCredential.GOOGLE_SHEET,
+              googleSheetCredential.RANGE
+            );
+            const meSlips = employeesSlips.values.filter(
+              ([employeeID]) => employeeID === idSlips.toString()
+            )[0];
+
+            // return replyMessage(req.body, res, "สลิปเงินเดือน");
+            return replyMessage(req.body, res, salarySlips(), "flex");
         }
       }
     }
