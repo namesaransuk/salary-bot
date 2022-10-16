@@ -6,7 +6,7 @@ const lineCredential = {
 const googleSheetCredential = {
   SPREADSHEET_ID: "1oRi7Uj2DVUHXBcKHgFhLgk6xWo0yFhmnn5aaAm2MpkU",
   GOOGLE_SHEET: "salary",
-  RANGE: "A2:E",
+  RANGE: "A2:G",
 };
 
 const firebaseCredential = {
