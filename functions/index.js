@@ -18,7 +18,7 @@ exports.lineWebhook = functions.https.onRequest(async (req, res) => {
 
     if (isTextMessage) {
       const messageFromUser = message.text.trim();
-      const checkRegister = messageFromUser.split("รหัส:");
+      const checkRegister = messageFromUser.split("");
       const needToRegister = checkRegister && checkRegister[1];
 
       if (needToRegister) {
