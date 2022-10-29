@@ -18,7 +18,7 @@ exports.lineWebhook = functions.https.onRequest(async (req, res) => {
 
     if (isTextMessage) {
       const messageFromUser = message.text.trim();
-      const checkRegister = messageFromUser.split("");
+      const checkRegister = messageFromUser.split("รหัส:");
       const needToRegister = checkRegister && checkRegister[1];
 
       if (needToRegister) {
@@ -69,23 +69,6 @@ exports.lineWebhook = functions.https.onRequest(async (req, res) => {
 
             return replyMessage(req.body, res, salaryMessage(me), "flex");
           case "slips":
-            const hasBeenRegisteredSlips = await validateRegistered(lineUserID);
-
-            if (!hasBeenRegisteredSlips) {
-              return replyMessage(req.body, res, "กรุณาลงทะเบียนก่อนใช้งาน");
-            }
-
-            const { idSlips } = hasBeenRegisteredSlips;
-            const employeesSlips = await getGoogleSheetData(
-              googleSheetCredential.GOOGLE_SHEET,
-              googleSheetCredential.RANGE
-            );
-            const meSlips = employeesSlips.values.filter(
-              ([employeeID]) => employeeID === idSlips.toString()
-            )[0];
-
-            // return replyMessage(req.body, res, "สลิปเงินเดือน");
-            return replyMessage(req.body, res, salarySlips(), "flex");
         }
       }
     }

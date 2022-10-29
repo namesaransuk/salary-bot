@@ -1,7 +1,7 @@
 const numberToStringCurrency = (amount) => {
   return Intl.NumberFormat().format(amount);
 };
-const salaryMessage = ([id, name, department, salary = 0, ot = 0, company, slips]) => {
+const salaryMessage = ([id, name, department, salary = 0, ot = 0, company]) => {
   const salaryFloat = parseFloat(salary);
   const otFloat = parseFloat(ot);
   const total = salaryFloat + otFloat;
