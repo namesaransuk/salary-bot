@@ -3,7 +3,6 @@ const functions = require("firebase-functions");
 const { googleSheetCredential } = require("./config");
 const { reply } = require("./helpers/line");
 const { salaryMessage } = require("./helpers/line/messages");
-const { salarySlips } = require("./helpers/line/slips");
 const { getGoogleSheetData } = require("./helpers/googleSheets");
 const { validateRegistered, registerUser } = require("./helpers/firebase");
 
@@ -67,8 +66,7 @@ exports.lineWebhook = functions.https.onRequest(async (req, res) => {
               ([employeeID]) => employeeID === idCard.toString()
             )[0];
 
-            return replyMessage(req.body, res, salaryMessage(me), "flex");
-          case "slips":
+            return replyMessage(req.body, res, salaryMessage(me));
         }
       }
     }
